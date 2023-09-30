@@ -36,7 +36,7 @@ def lire_et_pretraiter_csv(chemin_dossier):
 def clean(df):
     df['Order Date'] = pd.to_datetime(df['Order Date'])
     df['Chiffre Affaire'] = df['Product Price']*df['Quantity']
-    resultat = df.groupby(['Restaurant_ID', 'Order_ID'])['Chiffre Affaire'].sum().reset_index()
+    resultat = df.groupby(['Restaurant_ID','Order Date', 'Order_ID'])['Chiffre Affaire'].sum().reset_index()
     resultat.rename(columns=lambda x: x.lower().replace(' ', '_'), inplace=True)
     return resultat
 
@@ -47,26 +47,13 @@ def formater_chiffre_affaire(resultat):
 # Fonction pour créer le graphique en courbe
 def creer_graphique(resultat):
     # Créer un graphique en courbe
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Séparer les données pour chaque restaurant
-    restaurant_1 = resultat[resultat['restaurant_id'] == '1']
-    restaurant_2 = resultat[resultat['restaurant_id'] == '2']
-
-    # Tracer les courbes pour chaque restaurant
-    ax.plot(restaurant_1['date'], restaurant_1['chiffre_affaire'], label='restaurant 1')
-    ax.plot(restaurant_2['date'], restaurant_2['chiffre_affaire'], label='restaurant 2')
-
-    # Étiquettes et légende
-    ax.set_xlabel('date')
-    ax.set_ylabel('chiffre d\'affaires')
-    ax.set_title('évolution du chiffre d\'affaires par date')
-    ax.legend()
-
-    # Afficher le graphique
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
+    fig, ax = plt.subplots(1,1, figsize=(10,5))
+    
+    ax.plot(resultat['order_date'], resultat['chiffre_affaire'])
+    ax.set_title('Chiffre d affaire des restaurants en fonction du temps')
+    ax.set_xlabel('Temps')
+    ax.set_ylabel('chiffre affaire')
+    plt.grid(True)
 
 
 # Appels aux fonctions
@@ -77,5 +64,23 @@ resultat = formater_chiffre_affaire(resultat)
 
 # Afficher le résultat
 print(resultat)
-
 #creer_graphique(resultat)
+
+
+# Fonction pour agréger les données par heure
+def aggreguer_par_heure(df):
+    df['Order Date'] = pd.to_datetime(df['Order Date'])
+    df['Heure'] = df['Order Date'].dt.hour
+    df['Date'] = df['Order Date'].dt.date
+    df['Chiffre Affaire'] = df['Product Price']*df['Quantity']
+    
+    resultat = df.groupby(['Date', 'Heure'])['Chiffre Affaire'].sum().reset_index()
+    resultat.rename(columns=lambda x: x.lower().replace(' ', '_'), inplace=True)
+    return resultat
+
+# Appels aux fonctions
+resultat = aggreguer_par_heure(concatenated_df)
+resultat = formater_chiffre_affaire(resultat)
+# Afficher le résultat
+print(resultat)
+creer_graphique(resultat)
