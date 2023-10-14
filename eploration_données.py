@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 # Chemin du répertoire contenant les fichiers CSV
-dossier_csv = 'C:/Users/284786/MLOPS/Donnees'
+dossier_csv = 'D:/Annee_2023_2024/MLOPS/TD/Donnees'
 
 # Fonction pour lire et prétraiter les fichiers CSV
 def lire_et_pretraiter_csv(chemin_dossier):
